@@ -4,7 +4,7 @@ from urllib.parse import quote, urlparse
 import requests, feedparser
 from bs4 import BeautifulSoup
 
-ROOT=os.path.dirname(os.path.dirname(__file__))
+ROOT=os.path.dirname(__file__)
 cfg=json.load(open(os.path.join(ROOT,"config.json"),encoding="utf-8"))
 data_path=os.path.join(ROOT,"candidates.json")
 try:
