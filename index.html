@@ -67,7 +67,7 @@ function render(){
  <td><a href="${esc(x.evidence_url)}" target="_blank">Open evidence ↗</a></td>
  </tr>`).join('');
 }
-fetch('candidates.json').then(r=>r.json()).then(x=>{
+fetch('candidates.json?v=' + Date.now()).then(r=>r.json()).then(x=>{
  data=x.candidates||[];
  document.getElementById('n').textContent=data.length;
  document.getElementById('h').textContent=data.filter(x=>x.priority.startsWith('1')).length;
