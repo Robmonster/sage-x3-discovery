@@ -97,7 +97,7 @@ def score(title, summary, published):
     return fresh, conf
 
 
-def add_result(company, url, title, summary, published, source):
+def add_result(company, url, title, summary, published, source, current_query=""):
     d = domain(url)
 
     if any(x.lower() in d for x in exclude):
@@ -108,7 +108,14 @@ def add_result(company, url, title, summary, published, source):
         stats["known"] += 1
         return
 
-    if "sage x3" not in (title + " " + summary).lower():
+    search_text = (title + " " + summary).lower()
+    is_job_search = any(k in current_query.lower() for k in [
+        "job", "jobs", "vacancy", "vacancies", "career", "careers",
+        "recruitment", "business systems", "finance systems",
+        "erp manager", "systems manager", "erp analyst",
+        "business analyst", "application support"
+    ])
+    if "sage x3" not in search_text and not is_job_search:
         stats["non_sage_x3"] += 1
         return
 
@@ -168,6 +175,7 @@ for q in cfg.get("queries", []):
                 e.get("summary", ""),
                 e.get("published", ""),
                 "Google News RSS",
+                q,
             )
     except Exception as ex:
         stats["errors"] += 1
@@ -289,17 +297,33 @@ for q in cfg.get("queries", []):
     stats["web_search_queries"] += 1
 
     try:
-        r = session.get(
-            "https://search.yahoo.com/search",
-            params={
-                "p": q,
-                "ei": "UTF-8",
-                "fr": "sfp",
-            },
-            headers=yahoo_headers,
-            timeout=25,
-            allow_redirects=True,
-        )
+        r = None
+        for attempt in range(3):
+            try:
+                r = session.get(
+                    "https://search.yahoo.com/search",
+                    params={
+                        "p": q,
+                        "ei": "UTF-8",
+                        "fr": "sfp",
+                        "n": "10",
+                    },
+                    headers=yahoo_headers,
+                    timeout=25,
+                    allow_redirects=True,
+                )
+                if r.ok:
+                    break
+                print("Yahoo retry:", q, "attempt", attempt + 1, "HTTP", r.status_code)
+            except requests.RequestException as ex:
+                print("Yahoo request retry:", q, "attempt", attempt + 1, ex)
+            if attempt < 2:
+                import time
+                time.sleep(2 * (attempt + 1))
+
+        if r is None or not r.ok:
+            stats["errors"] += 1
+            continue
 
         print(
             "Yahoo:",
@@ -309,10 +333,6 @@ for q in cfg.get("queries", []):
             "bytes",
             len(r.text),
         )
-
-        if not r.ok:
-            stats["errors"] += 1
-            continue
 
         results = parse_yahoo_results(r.text)
 
@@ -328,6 +348,7 @@ for q in cfg.get("queries", []):
                 summary,
                 "",
                 yahoo_source_type(title, url),
+                q,
             )
 
     except requests.RequestException as ex:
