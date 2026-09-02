@@ -15,6 +15,14 @@ except Exception:
     db = {"last_search": "", "search_stats": {}, "candidates": []}
 
 known = {x.lower().strip() for x in cfg.get("known_companies", [])}
+
+# Additional searches aimed specifically at recruitment/job adverts.
+job_queries = ['"Sage X3" "ERP Manager" job', '"Sage X3" "Business Systems Manager" job', '"Sage X3" "Business Systems" vacancy', '"Sage X3" "Finance Systems" vacancy', '"Sage X3" "Systems Manager" vacancy', '"Sage X3" "ERP Systems" vacancy', '"Sage X3" "IT Manager" vacancy', '"Sage X3" "Finance Manager" vacancy', '"Sage X3" "Management Accountant" vacancy', '"Sage X3" "Financial Controller" vacancy', '"Sage X3" "Systems Accountant" vacancy', '"Sage X3" "ERP Administrator" vacancy', '"Sage X3" "ERP Analyst" vacancy', '"Sage X3" "Business Analyst" vacancy', '"Sage X3" "application support" vacancy', '"Sage X3" "IT Systems" job', '"Sage X3" "business systems" "2026"', '"Sage X3" "business systems" "2025"']
+existing_queries = cfg.get("queries", [])
+cfg["queries"] = existing_queries + [
+    q for q in job_queries if q not in existing_queries
+]
+
 exclude = set(cfg.get("exclude_domains", []))
 headers = {
     "User-Agent": (
@@ -244,6 +252,22 @@ def parse_yahoo_results(page_html):
     return found[:10]
 
 
+
+def yahoo_source_type(title, url):
+    t = (title + " " + url).lower()
+    job_terms = [
+        "job", "jobs", "vacancy", "vacancies", "career", "careers",
+        "recruitment", "recruit", "employment", "apply", "job-",
+    ]
+    job_domains = [
+        "indeed.", "linkedin.", "reed.co.uk", "totaljobs.",
+        "cv-library.", "glassdoor.", "adzuna.", "talents.",
+        "jobserve.", "ziprecruiter.", "simplyhired.",
+    ]
+    if any(term in t for term in job_terms) or any(d in url.lower() for d in job_domains):
+        return "Job advert / recruitment"
+    return "Yahoo Search"
+
 # Yahoo Search
 yahoo_headers = {
     "User-Agent": (
@@ -303,7 +327,7 @@ for q in cfg.get("queries", []):
                 title,
                 summary,
                 "",
-                "Yahoo Search",
+                yahoo_source_type(title, url),
             )
 
     except requests.RequestException as ex:
