@@ -1,5 +1,5 @@
 {
-  "last_search": "2026-09-02T11:27:23+00:00",
+  "last_search": "2026-09-02T12:03:33+00:00",
   "candidates": [
     {
       "priority": "1 - Submit first",
@@ -75,19 +75,19 @@
     }
   ],
   "search_stats": {
-    "started_at": "2026-09-02T11:26:54+00:00",
+    "started_at": "2026-09-02T12:00:34+00:00",
     "queries": 36,
     "google_news_queries": 36,
-    "google_news_results": 79,
+    "google_news_results": 76,
     "web_search_queries": 36,
-    "web_search_results": 225,
+    "web_search_results": 95,
     "new_candidates": 0,
     "duplicates": 0,
-    "excluded": 164,
+    "excluded": 114,
     "known": 0,
-    "non_sage_x3": 140,
-    "errors": 8,
-    "finished_at": "2026-09-02T11:27:23+00:00",
-    "duration_seconds": 29
+    "non_sage_x3": 57,
+    "errors": 25,
+    "finished_at": "2026-09-02T12:03:33+00:00",
+    "duration_seconds": 179
   }
 }
