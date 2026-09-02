@@ -1,0 +1,19 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sage X3 Discovery Monitor</title><style>
+body{font-family:Arial,sans-serif;margin:0;background:#f5f7fb;color:#172033}header{background:#172033;color:white;padding:25px 5%}main{max-width:1400px;margin:25px auto;padding:0 20px}
+.cards{display:flex;gap:15px;flex-wrap:wrap}.card{background:white;padding:18px;border-radius:10px;min-width:170px}.num{font-size:28px;font-weight:bold}
+.controls{margin:20px 0;display:flex;gap:10px;flex-wrap:wrap}input,select{padding:10px;border:1px solid #ccc;border-radius:7px}
+table{width:100%;border-collapse:collapse;background:white}th,td{padding:12px;border-bottom:1px solid #eee;text-align:left;vertical-align:top}th{background:#f0f2f5}
+.wrap{overflow:auto;border-radius:10px}a{color:#155eef;font-weight:bold}.badge{padding:4px 7px;border-radius:20px;background:#e9eef8;font-size:12px}
+</style></head><body><header><h1>Sage X3 Discovery Monitor</h1><div>Recent public evidence of Sage X3 users and implementations</div></header>
+<main><div class="cards"><div class="card"><div class="num" id="n">-</div>Total candidates</div><div class="card"><div class="num" id="h">-</div>High priority</div><div class="card"><div class="num" id="d">-</div>Last search</div></div>
+<div class="controls"><input id="q" placeholder="Search..."><select id="p"><option value="">All priorities</option><option>1 - Submit first</option><option>2 - Strong</option><option>3 - Reserve</option><option>4 - Lead</option></select></div>
+<div class="wrap"><table><thead><tr><th>Priority</th><th>Company</th><th>Country</th><th>Evidence / reason</th><th>Date</th><th>Freshness</th><th>Confidence</th><th>Evidence</th></tr></thead><tbody id="rows"></tbody></table></div></main>
+<script>
+let data=[];const esc=x=>String(x??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+function render(){let q=document.getElementById('q').value.toLowerCase(),p=document.getElementById('p').value;
+let a=data.filter(x=>(!p||x.priority==p)&&(!q||Object.values(x).join(' ').toLowerCase().includes(q)));
+document.getElementById('rows').innerHTML=a.map(x=>`<tr><td><span class="badge">${esc(x.priority)}</span></td><td><b>${esc(x.company)}</b></td><td>${esc(x.country)}</td><td>${esc(x.reason)}</td><td>${esc(x.evidence_date)}</td><td>${esc(x.freshness)}</td><td>${esc(x.confidence)}</td><td><a href="${esc(x.evidence_url)}" target="_blank">Open evidence ↗</a></td></tr>`).join('')}
+fetch('candidates.json').then(r=>r.json()).then(x=>{data=x.candidates||[];document.getElementById('n').textContent=data.length;document.getElementById('h').textContent=data.filter(x=>x.priority.startsWith('1')).length;document.getElementById('d').textContent=x.last_search||'-';render()});
+q.oninput=render;p.onchange=render;
+</script></body></html>

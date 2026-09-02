@@ -1,0 +1,77 @@
+{
+  "last_search": "2026-09-02",
+  "candidates": [
+    {
+      "priority": "1 - Submit first",
+      "company": "Scanvogn ApS",
+      "country": "Denmark",
+      "reason": "2024 annual report says the company changed ERP from Microsoft Dynamics to Sage X3; the new ERP was taken into use on 1 January 2025.",
+      "evidence_date": "2025-01-01",
+      "freshness": "★★★★★",
+      "confidence": "★★★★★",
+      "source_type": "Company annual report",
+      "evidence_url": "https://regnskaber.cvrapi.dk/85385933/amNsb3VkczovLzAzLzdmLzYzLzRiL2IxLzE1ODYtNDAwNC05OTgxLWVkYjYwZGE3YTE1MQ.pdf",
+      "discovered_at": "2026-09-02"
+    },
+    {
+      "priority": "1 - Submit first",
+      "company": "RM plc – Assessment & Corporate Services",
+      "country": "UK",
+      "reason": "RM plc results state that it went live with a new standalone ERP system (Sage X3) for Assessment and corporate services.",
+      "evidence_date": "2026",
+      "freshness": "★★★★★",
+      "confidence": "★★★★★",
+      "source_type": "Company results / regulatory announcement",
+      "evidence_url": "https://www.lse.co.uk/rns/RM./rm-plc-interim-results-e7wwga4fb784bb2.html",
+      "discovered_at": "2026-09-02"
+    },
+    {
+      "priority": "1 - Submit first",
+      "company": "Wimpy UK",
+      "country": "UK",
+      "reason": "Famous Brands' 2025 annual report says the conversion of Wimpy UK to Sage X3 was completed.",
+      "evidence_date": "2025",
+      "freshness": "★★★★★",
+      "confidence": "★★★★★",
+      "source_type": "Parent company annual report",
+      "evidence_url": "https://financialfilings.com/filings/famous-brands-limited/annual-report/2025/13538856/",
+      "discovered_at": "2026-09-02"
+    },
+    {
+      "priority": "1 - Submit first",
+      "company": "Afrimat Limited",
+      "country": "South Africa",
+      "reason": "Afrimat's May 2026 results state that, as part of the Lafarge integration, the SAP system was migrated to Sage X3 at the end of August 2025.",
+      "evidence_date": "2025-08-31",
+      "freshness": "★★★★★",
+      "confidence": "★★★★★",
+      "source_type": "Company / stock-exchange results announcement",
+      "evidence_url": "https://dn.sharenet.co.za/v3/sens_display.php?scode=AFT&seq=1&tdate=20260521070500",
+      "discovered_at": "2026-09-02"
+    },
+    {
+      "priority": "1 - Submit first",
+      "company": "California Prison Industry Authority (CALPIA)",
+      "country": "USA",
+      "reason": "Official announcement says CALPIA completed implementation of a new Sage X3 ERP replacing its previous ERP; the full rollout was completed by April 2025.",
+      "evidence_date": "2025-08-14",
+      "freshness": "★★★★★",
+      "confidence": "★★★★★",
+      "source_type": "Organisation press release",
+      "evidence_url": "https://www.calpia.ca.gov/2025/08/14/calpias-sage-x3-project-crosses-the-finish-line/",
+      "discovered_at": "2026-09-02"
+    },
+    {
+      "priority": "2 - Strong",
+      "company": "Schade Stahl",
+      "country": "Germany",
+      "reason": "Implementation report says the company decided in 2024 to migrate from Sage Classic Line to Sage X3, with Sage X3 going live in January 2025.",
+      "evidence_date": "2025-01",
+      "freshness": "★★★★★",
+      "confidence": "★★★★★",
+      "source_type": "Implementation consultancy report",
+      "evidence_url": "https://www.linkedin.com/pulse/successful-erp-transformation-schade-stahl-brighten-consulting-ibalf",
+      "discovered_at": "2026-09-02"
+    }
+  ]
+}

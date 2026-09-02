@@ -1,0 +1,33 @@
+{
+  "known_companies": [
+    "Inixion",
+    "CPiO",
+    "X3 Consulting"
+  ],
+  "queries": [
+    "\"Sage X3\" \"go live\" 2026",
+    "\"Sage X3\" \"went live\" 2026",
+    "\"Sage X3\" \"implementation\" 2026",
+    "\"Sage X3\" \"migration\" 2026",
+    "\"Sage X3\" \"new ERP\" 2026",
+    "\"Sage X3\" \"selected\" ERP 2026",
+    "\"Sage X3\" \"go-live\" 2025",
+    "\"Sage X3\" \"went live\" 2025",
+    "\"Sage X3\" \"implementation\" 2025",
+    "\"Sage X3\" \"migration\" 2025",
+    "\"Sage X3\" \"new ERP\" 2025",
+    "\"Sage X3\" \"ERP Manager\" job",
+    "\"Sage X3\" \"Business Systems\" job",
+    "\"Sage X3\" \"Finance Systems\" job",
+    "\"Sage X3\" \"Systems Manager\" job",
+    "\"Sage X3\" careers",
+    "\"Sage X3\" recruitment",
+    "\"Sage ERP X3\" implementation",
+    "\"Sage ERP X3\" migration"
+  ],
+  "exclude_domains": [
+    "inixion.com",
+    "cpio.co.uk",
+    "x3consulting.com"
+  ]
+}
