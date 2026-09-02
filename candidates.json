@@ -1,5 +1,5 @@
 {
-  "last_search": "2026-09-02T11:06:23+00:00",
+  "last_search": "2026-09-02T11:10:24+00:00",
   "candidates": [
     {
       "priority": "1 - Submit first",
@@ -75,19 +75,19 @@
     }
   ],
   "search_stats": {
-    "started_at": "2026-09-02T11:06:15+00:00",
+    "started_at": "2026-09-02T11:10:16+00:00",
     "queries": 19,
     "google_news_queries": 19,
-    "google_news_results": 58,
+    "google_news_results": 56,
     "duckduckgo_queries": 19,
     "duckduckgo_results": 0,
     "new_candidates": 0,
     "duplicates": 0,
     "excluded": 4,
     "known": 0,
-    "non_sage_x3": 54,
+    "non_sage_x3": 52,
     "errors": 0,
-    "finished_at": "2026-09-02T11:06:23+00:00",
+    "finished_at": "2026-09-02T11:10:24+00:00",
     "duration_seconds": 8
   }
 }
