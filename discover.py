@@ -30,8 +30,8 @@ stats = {
     "queries": len(cfg.get("queries", [])),
     "google_news_queries": 0,
     "google_news_results": 0,
-    "duckduckgo_queries": 0,
-    "duckduckgo_results": 0,
+    "web_search_queries": 0,
+    "web_search_results": 0,
     "new_candidates": 0,
     "duplicates": 0,
     "excluded": 0,
@@ -104,7 +104,7 @@ def add_result(company, url, title, summary, published, source):
         stats["non_sage_x3"] += 1
         return
 
-    if any(x in d for x in ["google.com", "bing.com", "duckduckgo.com"]):
+    if any(x in d for x in ["google.com", "bing.com", "yahoo.com"]):
         stats["excluded"] += 1
         return
 
@@ -166,8 +166,8 @@ for q in cfg.get("queries", []):
         print("RSS error", q, ex)
 
 
-def extract_ddg_url(href):
-    """Turn DuckDuckGo redirect links into the actual destination URL."""
+def extract_yahoo_url(href):
+    """Turn Yahoo redirect links into the actual destination URL."""
     if not href:
         return ""
 
@@ -178,104 +178,123 @@ def extract_ddg_url(href):
 
     try:
         parsed = urlparse(href)
-        if parsed.netloc.endswith("duckduckgo.com"):
+        if parsed.netloc.endswith("yahoo.com"):
             qs = parse_qs(parsed.query)
-            if "uddg" in qs:
-                return unquote(qs["uddg"][0])
+            for key in ("RU", "u", "url"):
+                if key in qs:
+                    return unquote(qs[key][0])
     except Exception:
         pass
 
     return href
 
 
-def parse_ddg_results(page_html):
+def parse_yahoo_results(page_html):
     """
-    DuckDuckGo has changed its HTML several times. Support both the
-    classic HTML endpoint and the lighter endpoint, and don't depend
-    on one CSS class alone.
+    Parse Yahoo's HTML search results. Yahoo markup can vary, so
+    support several common result containers and title/snippet layouts.
     """
     soup = BeautifulSoup(page_html, "html.parser")
     found = []
     seen = set()
 
-    # Classic HTML endpoint
-    for result in soup.select(".result"):
-        a = result.select_one(".result__a")
-        snippet = result.select_one(".result__snippet")
-        if a:
-            item = (
-                extract_ddg_url(a.get("href", "")),
-                a.get_text(" ", strip=True),
-                snippet.get_text(" ", strip=True) if snippet else "",
-            )
-            if item[0] and item[0] not in seen:
-                found.append(item)
-                seen.add(item[0])
+    selectors = [
+        "div#web ol.searchCenterMiddle li",
+        "div#web .algo",
+        "div.dd.algo",
+        "div#web li.algo",
+    ]
 
-    # Lite endpoint / alternate markup
-    if not found:
-        for a in soup.select("a.result-link, a.result__a"):
-            url = extract_ddg_url(a.get("href", ""))
-            if not url:
-                continue
+    items = []
+    for selector in selectors:
+        items = soup.select(selector)
+        if items:
+            break
 
-            title = a.get_text(" ", strip=True)
-            parent = a.parent
-            snippet = ""
+    for item in items:
+        a = item.select_one("h3 a") or item.select_one("a")
+        if not a:
+            continue
 
-            if parent:
-                # Look nearby for common DDG snippet containers.
-                node = parent.find_next(
-                    class_=re.compile(r"(snippet|result-snippet)", re.I)
-                )
-                if node:
-                    snippet = node.get_text(" ", strip=True)
+        url = extract_yahoo_url(a.get("href", ""))
+        title = a.get_text(" ", strip=True)
 
-            if url not in seen:
-                found.append((url, title, snippet))
-                seen.add(url)
+        if not url or not title:
+            continue
+
+        if not url.startswith(("http://", "https://")):
+            continue
+
+        snippet_node = (
+            item.select_one(".compText")
+            or item.select_one(".fz-ms")
+            or item.select_one(".fc-falcon")
+            or item.select_one("p")
+        )
+
+        summary = (
+            snippet_node.get_text(" ", strip=True)
+            if snippet_node else ""
+        )
+
+        if url not in seen:
+            found.append((url, title, summary))
+            seen.add(url)
 
     return found[:10]
 
 
-# DuckDuckGo search
+# Yahoo Search
+yahoo_headers = {
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/146.0.0.0 Safari/537.36"
+    ),
+    "Accept": (
+        "text/html,application/xhtml+xml,application/xml;"
+        "q=0.9,image/avif,image/webp,*/*;q=0.8"
+    ),
+    "Accept-Language": "en-GB,en;q=0.9",
+    "Referer": "https://search.yahoo.com/",
+}
+
+session = requests.Session()
+
 for q in cfg.get("queries", []):
-    stats["duckduckgo_queries"] += 1
+    stats["web_search_queries"] += 1
 
     try:
-        # Use the lightweight endpoint first; it is generally more stable
-        # for automated requests than the JavaScript-heavy main search page.
-        urls = [
-            "https://lite.duckduckgo.com/lite/?q=" + quote(q),
-            "https://html.duckduckgo.com/html/?q=" + quote(q),
-        ]
+        r = session.get(
+            "https://search.yahoo.com/search",
+            params={
+                "p": q,
+                "ei": "UTF-8",
+                "fr": "sfp",
+            },
+            headers=yahoo_headers,
+            timeout=25,
+            allow_redirects=True,
+        )
 
-        results = []
-        last_status = None
+        print(
+            "Yahoo:",
+            q,
+            "HTTP",
+            r.status_code,
+            "bytes",
+            len(r.text),
+        )
 
-        for search_url in urls:
-            try:
-                r = requests.get(
-                    search_url,
-                    headers=headers,
-                    timeout=20,
-                    allow_redirects=True,
-                )
-                last_status = r.status_code
+        if not r.ok:
+            stats["errors"] += 1
+            continue
 
-                if r.ok:
-                    results = parse_ddg_results(r.text)
-                    if results:
-                        break
-            except requests.RequestException:
-                continue
+        results = parse_yahoo_results(r.text)
 
-        if not results:
-            # This is useful in the Actions log without counting a blocked
-            # response as a successful search result.
-            print("DDG no results:", q, "HTTP", last_status)
+        print("Yahoo parsed results:", len(results))
 
-        stats["duckduckgo_results"] += len(results)
+        stats["web_search_results"] += len(results)
 
         for url, title, summary in results:
             add_result(
@@ -284,12 +303,15 @@ for q in cfg.get("queries", []):
                 title,
                 summary,
                 "",
-                "DuckDuckGo",
+                "Yahoo Search",
             )
 
+    except requests.RequestException as ex:
+        stats["errors"] += 1
+        print("Yahoo error", q, ex)
     except Exception as ex:
         stats["errors"] += 1
-        print("DDG error", q, ex)
+        print("Yahoo error", q, ex)
 
 
 db["candidates"] = sorted(
@@ -316,7 +338,7 @@ with open(data_path, "w", encoding="utf-8") as f:
 print("Search completed")
 print("New candidates:", stats["new_candidates"])
 print("Google News results:", stats["google_news_results"])
-print("DuckDuckGo results:", stats["duckduckgo_results"])
+print("Web search results:", stats["web_search_results"])
 print("Duplicates:", stats["duplicates"])
 print("Excluded:", stats["excluded"])
 print("Known:", stats["known"])
