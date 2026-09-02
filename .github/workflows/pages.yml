@@ -1,4 +1,5 @@
 name: Deploy Sage X3 Discovery Monitor
+
 on:
   push:
     branches: ["main"]
@@ -6,6 +7,7 @@ on:
       - "index.html"
       - "candidates.json"
       - "data/**"
+      - ".github/workflows/pages.yml"
   workflow_dispatch:
 
 permissions:
