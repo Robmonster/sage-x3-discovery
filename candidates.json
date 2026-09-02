@@ -1,5 +1,5 @@
 {
-  "last_search": "2026-09-02",
+  "last_search": "2026-09-02T10:47:05+00:00",
   "candidates": [
     {
       "priority": "1 - Submit first",
@@ -73,5 +73,21 @@
       "evidence_url": "https://www.linkedin.com/pulse/successful-erp-transformation-schade-stahl-brighten-consulting-ibalf",
       "discovered_at": "2026-09-02"
     }
-  ]
+  ],
+  "search_stats": {
+    "started_at": "2026-09-02T10:46:58+00:00",
+    "queries": 19,
+    "google_news_queries": 19,
+    "google_news_results": 56,
+    "duckduckgo_queries": 19,
+    "duckduckgo_results": 0,
+    "new_candidates": 0,
+    "duplicates": 0,
+    "excluded": 4,
+    "known": 0,
+    "non_sage_x3": 52,
+    "errors": 0,
+    "finished_at": "2026-09-02T10:47:05+00:00",
+    "duration_seconds": 7
+  }
 }
