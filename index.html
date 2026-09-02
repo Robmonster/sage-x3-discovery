@@ -1,5 +1,8 @@
 <!doctype html>
-<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Sage X3 Discovery Monitor</title>
 <style>
 body{font-family:Arial,sans-serif;margin:0;background:#f5f7fb;color:#172033}
@@ -18,10 +21,15 @@ a{color:#155eef;font-weight:bold}
 .badge{padding:4px 7px;border-radius:20px;background:#e9eef8;font-size:12px}
 .stats{margin:20px 0;background:white;padding:18px;border-radius:10px}
 .statgrid{display:flex;gap:25px;flex-wrap:wrap}.statgrid div{min-width:130px}
-</style></head>
+.source{font-size:12px;color:#657084;margin-top:4px}
+</style>
+</head>
 <body>
-<header><h1>Sage X3 Discovery Monitor</h1>
-<div>Recent public evidence of Sage X3 users and implementations</div></header>
+<header>
+<h1>Sage X3 Discovery Monitor</h1>
+<div>Recent public evidence of Sage X3 users, implementations and recruitment activity</div>
+</header>
+
 <main>
 <div class="cards">
 <div class="card"><div class="num" id="n">-</div>Total candidates</div>
@@ -34,55 +42,100 @@ a{color:#155eef;font-weight:bold}
 <div class="statgrid">
 <div><b id="queries">-</b><br>queries</div>
 <div><b id="gn">-</b><br>Google News results</div>
-<div><b id="ddg">-</b><br>DuckDuckGo results</div>
+<div><b id="ws">-</b><br>Yahoo results</div>
 <div><b id="new">-</b><br>new candidates</div>
 <div><b id="dup">-</b><br>duplicates</div>
 <div><b id="exc">-</b><br>excluded</div>
+<div><b id="ns">-</b><br>non-Sage X3</div>
 <div><b id="err">-</b><br>errors</div>
-</div></div>
+</div>
+</div>
 
 <div class="controls">
-<input id="q" placeholder="Search...">
-<select id="p"><option value="">All priorities</option>
-<option>1 - Submit first</option><option>2 - Strong</option><option>3 - Reserve</option><option>4 - Lead</option></select>
+<input id="q" placeholder="Search candidates...">
+<select id="p">
+<option value="">All priorities</option>
+<option>1 - Submit first</option>
+<option>2 - Strong</option>
+<option>3 - Reserve</option>
+<option>4 - Lead</option>
+</select>
 </div>
-<div class="wrap"><table><thead><tr>
+
+<div class="wrap">
+<table>
+<thead><tr>
 <th>Priority</th><th>Company</th><th>Country</th><th>Evidence / reason</th>
-<th>Date</th><th>Freshness</th><th>Confidence</th><th>Evidence</th>
-</tr></thead><tbody id="rows"></tbody></table></div>
+<th>Date</th><th>Freshness</th><th>Confidence</th><th>Source</th><th>Evidence</th>
+</tr></thead>
+<tbody id="rows"></tbody>
+</table>
+</div>
 </main>
 
 <script>
 let data=[];
-const esc=x=>String(x??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const esc=x=>String(x??'').replace(/[&<>"']/g,m=>({
+'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+}[m]));
+
 function render(){
- let q=document.getElementById('q').value.toLowerCase();
- let p=document.getElementById('p').value;
- let a=data.filter(x=>(!p||x.priority==p)&&(!q||Object.values(x).join(' ').toLowerCase().includes(q)));
+ const q=document.getElementById('q').value.toLowerCase();
+ const p=document.getElementById('p').value;
+ const a=data.filter(x=>
+   (!p||x.priority===p) &&
+   (!q||Object.values(x).join(' ').toLowerCase().includes(q))
+ );
+
  document.getElementById('rows').innerHTML=a.map(x=>`<tr>
  <td><span class="badge">${esc(x.priority)}</span></td>
- <td><b>${esc(x.company)}</b></td><td>${esc(x.country)}</td>
- <td>${esc(x.reason)}</td><td>${esc(x.evidence_date)}</td>
- <td>${esc(x.freshness)}</td><td>${esc(x.confidence)}</td>
- <td><a href="${esc(x.evidence_url)}" target="_blank">Open evidence ↗</a></td>
+ <td><b>${esc(x.company)}</b></td>
+ <td>${esc(x.country)}</td>
+ <td>${esc(x.reason)}</td>
+ <td>${esc(x.evidence_date)}</td>
+ <td>${esc(x.freshness)}</td>
+ <td>${esc(x.confidence)}</td>
+ <td><div>${esc(x.source_type)}</div></td>
+ <td><a href="${esc(x.evidence_url)}" target="_blank" rel="noopener">Open evidence ↗</a></td>
  </tr>`).join('');
 }
-fetch('candidates.json?v=' + Date.now()).then(r=>r.json()).then(x=>{
+
+fetch('candidates.json?v='+Date.now(),{cache:'no-store'})
+.then(r=>{
+ if(!r.ok) throw new Error('HTTP '+r.status);
+ return r.json();
+})
+.then(x=>{
  data=x.candidates||[];
  document.getElementById('n').textContent=data.length;
- document.getElementById('h').textContent=data.filter(x=>x.priority.startsWith('1')).length;
- let dt=x.last_search||'-';
- document.getElementById('d').textContent=dt==='-'?'-':new Date(dt).toLocaleString();
- let s=x.search_stats||{};
- document.getElementById('duration').textContent=s.duration_seconds!=null?'Run time: '+s.duration_seconds+'s':'';
+ document.getElementById('h').textContent=
+   data.filter(x=>(x.priority||'').startsWith('1')).length;
+
+ const dt=x.last_search||'-';
+ document.getElementById('d').textContent=
+   dt==='-'?'-':new Date(dt).toLocaleString();
+
+ const s=x.search_stats||{};
+ document.getElementById('duration').textContent=
+   s.duration_seconds!=null?'Run time: '+s.duration_seconds+'s':'';
+
  document.getElementById('queries').textContent=s.queries??'-';
  document.getElementById('gn').textContent=s.google_news_results??'-';
- document.getElementById('ddg').textContent=s.duckduckgo_results??'-';
+ document.getElementById('ws').textContent=s.web_search_results??'-';
  document.getElementById('new').textContent=s.new_candidates??'-';
  document.getElementById('dup').textContent=s.duplicates??'-';
  document.getElementById('exc').textContent=s.excluded??'-';
+ document.getElementById('ns').textContent=s.non_sage_x3??'-';
  document.getElementById('err').textContent=s.errors??'-';
  render();
-}).catch(e=>{document.getElementById('d').textContent='Error loading data';console.error(e)});
-q.oninput=render;p.onchange=render;
-</script></body></html>
+})
+.catch(e=>{
+ document.getElementById('d').textContent='Error loading data';
+ console.error(e);
+});
+
+document.getElementById('q').oninput=render;
+document.getElementById('p').onchange=render;
+</script>
+</body>
+</html>
